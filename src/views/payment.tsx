@@ -10,6 +10,7 @@ import useSessionStorage from '@/hooks/use-session-storage';
 import { SESSION_KEYS } from '@/constants';
 import z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import InputWithMask from '@/components/input-with-mask';
 
 
 export const formSchema = z.object({
@@ -128,14 +129,14 @@ export default function PaymentRouteComponent() {
               <FieldLabel htmlFor="card-number" className="text-xl">
                 {`Card Number`}<span className="text-destructive">{`*`}</span>
               </FieldLabel>
-              <Input
-                {...field}
+
+              <InputWithMask
+                mask="0000 0000 0000 0000"
+                field={{ ...field }}
+                fieldState={{ ...fieldState }}
                 id="card-number"
-                aria-invalid={fieldState.invalid}
-                placeholder=""
-                autoComplete="off"
-                className="h-12 md:text-lg"
-              />
+                placeholder='Card Number' />
+                
               {fieldState.invalid && (
                 <FieldError errors={[fieldState.error]} />
               )}
@@ -155,7 +156,7 @@ export default function PaymentRouteComponent() {
                 {...field}
                 id="name-on-card"
                 aria-invalid={fieldState.invalid}
-                placeholder=""
+                placeholder="Name"
                 autoComplete="off"
                 className="h-12 md:text-lg"
               />
@@ -174,14 +175,14 @@ export default function PaymentRouteComponent() {
               <FieldLabel htmlFor="card-expiry-date" className="text-xl">
                 {`Exp. Date`}<span className="text-destructive">{`*`}</span>
               </FieldLabel>
-              <Input
-                {...field}
+
+              <InputWithMask
+                mask="00/00"
+                field={{ ...field }}
+                fieldState={{ ...fieldState }}
                 id="card-expiry-date"
-                aria-invalid={fieldState.invalid}
-                placeholder=""
-                autoComplete="off"
-                className="h-12 md:text-lg"
-              />
+                placeholder='Exp. Date' />
+
               {fieldState.invalid && (
                 <FieldError errors={[fieldState.error]} />
               )}
@@ -197,14 +198,12 @@ export default function PaymentRouteComponent() {
               <FieldLabel htmlFor="cvv-field" className="text-xl">
                 {`CVV`}<span className="text-destructive">{`*`}</span>
               </FieldLabel>
-              <Input
-                {...field}
+              <InputWithMask
+                mask="000"
+                field={{ ...field }}
+                fieldState={{ ...fieldState }}
                 id="cvv-field"
-                aria-invalid={fieldState.invalid}
-                placeholder=""
-                autoComplete="off"
-                className={cn("h-12 md:text-lg")}
-              />
+                placeholder='CVV' />
               {fieldState.invalid && (
                 <FieldError errors={[fieldState.error]} />
               )}

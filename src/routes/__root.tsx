@@ -1,4 +1,4 @@
-import { Outlet, createRootRoute } from "@tanstack/react-router";
+import { Outlet, createRootRoute, useLocation } from "@tanstack/react-router";
 import { Fragment } from "react/jsx-runtime";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -26,6 +26,8 @@ export const Route = createRootRoute({
 const queryClient = new QueryClient();
 
 function RootComponent() {
+  const { pathname } = useLocation()
+  // const code = ''
   return (
     <Fragment>
       <QueryClientProvider client={queryClient}>
@@ -38,7 +40,7 @@ function RootComponent() {
                 </div>
                 <div className="text-center sm:text-right">
                   <h1 className="font-medium text-xl sm:text-2xl md:text-[32px] leading-tight sm:leading-[40px]">
-                    New Account Setup
+                    {pathname.includes("/account-setup/") ? `Authorization` : `New Account Setup`}
                   </h1>
                 </div>
               </div>

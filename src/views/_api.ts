@@ -7,11 +7,15 @@ import type { ApiResponse } from '@/types/common.api';
  * @param {Object} data - Account details payload.
  * @returns {Promise<Object>} Response data from the server.
  */
-export const createAccount = async (data: AccountRequest): Promise<ApiResponse<any>> => {
+export const createAccount = async (data: FormData): Promise<ApiResponse<any>> => {
   try {
-    const response = await Axios.post(`/account`, {
-      ...data
-    });
+    const response = await Axios.post(`/account`,
+      data,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data', // optional, Axios can also handle this automatically
+        },
+      });
     return response.data;
   } catch (error) {
     console.error('Error creating account:', error);

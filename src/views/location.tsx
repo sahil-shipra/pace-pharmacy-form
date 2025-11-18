@@ -96,7 +96,7 @@ function LocationComponent() {
                 {/* Check Mark */}
                 {selected && (
                   <div
-                    className="absolute h-full top-0 right-2 flex items-center justify-center px-4"
+                    className="absolute h-full top-0 right-2 items-center justify-center px-4 hidden sm:flex"
                     aria-hidden="true"
                   >
                     <div className="w-8 h-8 bg-theme-green rounded-full flex items-center justify-center">

@@ -18,4 +18,5 @@ export interface AccountRequest {
   medical: MedicalFormSchema;
   acknowledgements: ACKFormSchema;
   preferredLocation: Number
+  documents: any
 }

@@ -137,7 +137,7 @@ function Address() {
               )}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               <Controller
                 name="billingAddress.city"
                 control={form.control}
@@ -227,7 +227,7 @@ function Address() {
         {/* end billing-address */}
 
         {/* shipping-address */}
-        <div className="md:w-1/2 px-1">
+        <div className="md:w-1/2 px-1 mt-4 sm:mt-0">
           <div>
             <HeadTitle
               title={`Shipping Address`}
@@ -314,7 +314,7 @@ function Address() {
               )}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               <Controller
                 name="shippingAddress.city"
                 control={form.control}

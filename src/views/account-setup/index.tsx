@@ -54,7 +54,7 @@ function AccountSetupRouteComponent() {
         refetchOnWindowFocus: false
     })
 
-    const { mutate: SubmitApplication } = useMutation({
+    const { mutate: SubmitApplication, isPending } = useMutation({
         mutationKey: ['medical-director-authorization', code],
         mutationFn: submitApplication,
         onSuccess: () => {
@@ -196,7 +196,9 @@ function AccountSetupRouteComponent() {
 
 
                                     <div className="flex justify-end items-center gap-2">
-                                        <Button className='h-10 min-w-28 text-lg font-medium bg-theme-green cursor-pointer'>Submit Application</Button>
+                                        <Button className='h-10 min-w-28 text-lg font-medium bg-theme-green cursor-pointer'>
+                                            {isPending ? <Loader2 className="animate-spin" /> : `Submit Application`}
+                                        </Button>
                                     </div>
                                 </Fragment>
                             }

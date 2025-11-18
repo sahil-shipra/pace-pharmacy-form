@@ -7,7 +7,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createAccount } from "./_api";
 import type {
   AccountFormSchema,
-  AccountRequest,
   ACKFormSchema,
   MedicalFormSchema,
   PaymentFormSchema,
@@ -20,15 +19,36 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { isErrorResponse } from "@/types/common.api";
 import axios from "axios";
 import { TriangleAlert } from "lucide-react";
+import useDocumentsStore from "./account/_components/documents-store";
 
-const postAccount = async (data: AccountRequest) => {
+const postAccount = async (data: FormData) => {
   const res = await createAccount(data);
   if (isErrorResponse(res)) throw res.error;
   return res;
+};
+
+const ProvincesEnum = {
+  alberta: "Alberta",
+  british_columbia: "British Columbia",
+  manitoba: "Manitoba",
+  new_brunswick: "New Brunswick",
+  newfoundland_and_labrador: "Newfoundland and Labrador",
+  nova_scotia: "Nova Scotia",
+  ontario: "Ontario",
+  prince_edward_island: "Prince Edward Island",
+  quebec: "Quebec",
+  saskatchewan: "Saskatchewan",
+};
+
+export const PaymentMethodLabel: Record<string, string> = {
+  "visa": 'VISA',
+  "mastercard": 'Master Card',
+  "amex": 'American Express',
+  "bank_transfer": 'E-Transfer'
 };
 
 function ReviewRouteComponent() {
@@ -107,26 +127,73 @@ function ReviewRouteComponent() {
     null
   );
 
+  const { documents } = useDocumentsStore();
+
+  const checkForData = () => {
+    const dataChecks = [
+      // { key: preferredLocation, message: 'Preferred location is not set yet.', route: '/location' },
+      { key: accountInformation, message: 'Account information is not set yet.', route: '/account' },
+      { key: paymentInformation, message: 'Payment information is not set yet.', route: '/payment' },
+      { key: ackInformation, message: 'Acknowledgment information is not set yet.', route: '/acknowledgements' },
+      { key: medicalInformation, message: 'Medical information is not set yet.', route: '/medical-director' }
+    ];
+
+    for (const { key, message, route } of dataChecks) {
+      if (!key) {
+        console.log(message);
+        navigate({ to: route });
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+
+
+  useEffect(() => {
+    checkForData();
+
+    return () => {
+
+    }
+  }, [])
+
+
   const onFormSubmit = () => {
+
     if (
+      preferredLocation &&
       accountInformation &&
       paymentInformation &&
       medicalInformation &&
-      ackInformation &&
-      preferredLocation
+      ackInformation
     ) {
 
       if (accountInformation.sameAsBilling) {
         accountInformation.shippingAddress = accountInformation.billingAddress
       }
 
-      onSubmit({
+      const formData = new FormData();
+
+      if (documents && documents.length > 0) {
+        // Append images from the state to the FormData (files only, not previews)
+        documents.forEach((file) => {
+          if (file) {
+            formData.append('documents', file);
+          }
+        });
+      }
+
+      formData.append("json", JSON.stringify({
         account: accountInformation,
         payment: paymentInformation,
         medical: medicalInformation,
         acknowledgements: ackInformation,
-        preferredLocation: Number(preferredLocation)
-      });
+        preferredLocation: Number(preferredLocation),
+        documents: formData
+      }));
+      onSubmit(formData);
     } else {
       console.error("Account information missing. Cannot submit form.");
     }
@@ -168,7 +235,7 @@ function ReviewRouteComponent() {
                 {accountInformation.billingAddress.addressLine_1},
                 {accountInformation.billingAddress.addressLine_2},
                 {accountInformation.billingAddress.city},
-                {accountInformation.billingAddress.province},
+                {ProvincesEnum[accountInformation.billingAddress.province as keyof typeof ProvincesEnum]},
                 {accountInformation.billingAddress.postalCode}
               </div>
 
@@ -191,8 +258,8 @@ function ReviewRouteComponent() {
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-2">
               <div className="font-medium">Payment Method :</div>
-              <div className="sm:col-span-2 uppercase">
-                {paymentInformation.paymentMethod}
+              <div className="sm:col-span-2">
+                {PaymentMethodLabel[paymentInformation.paymentMethod]}
               </div>
 
               <div className="font-medium">Card Number :</div>
