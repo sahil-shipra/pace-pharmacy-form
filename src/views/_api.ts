@@ -1,5 +1,4 @@
 import Axios from '@/lib/Axios';
-import type { AccountRequest } from './_types';
 import type { ApiResponse } from '@/types/common.api';
 
 /**
