@@ -11,18 +11,85 @@ import { SESSION_KEYS } from '@/constants';
 import z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import InputWithMask from '@/components/input-with-mask';
+import { Info } from 'lucide-react';
 
 
-export const formSchema = z.object({
+const formSchema = z.object({
   paymentMethod: z.string().default('visa'),
-  cardNumber: z.string().min(1, 'Card Number is required'),
-  nameOnCard: z.string().min(1, 'Name is required'),
-  cardExpiryDate: z.string().min(1, 'Expiry Date is required'),
-  cvv: z.string().min(1, 'CVV is required'),
-  paymentAuthorization: z.boolean().refine(val => val === true, {
-    message: 'You must authorize your account.'
-  }),
+  cardNumber: z.string().optional(),
+  nameOnCard: z.string().optional(),
+  cardExpiryDate: z.string().optional(),
+  cvv: z.string().optional(),
+  paymentAuthorization: z.boolean().optional(),
+}).superRefine((data, ctx) => {
+
+  // Always require paymentAuthorization
+  if (data.paymentAuthorization !== true) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'You must authorize your account.',
+      path: ['paymentAuthorization'],
+    });
+  }
+
+  // Card fields required when not bank transfer
+  if (data.paymentMethod !== 'bank_transfer') {
+
+    if (!data.cardNumber || data.cardNumber.length === 0) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Card Number is required',
+        path: ['cardNumber'],
+      });
+    }
+
+    if (!data.nameOnCard || data.nameOnCard.length === 0) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Name is required',
+        path: ['nameOnCard'],
+      });
+    }
+
+    if (!data.cardExpiryDate || data.cardExpiryDate.length === 0) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Expiry Date is required',
+        path: ['cardExpiryDate'],
+      });
+    }
+
+    // CVV Required
+    if (!data.cvv || data.cvv.length === 0) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'CVV is required',
+        path: ['cvv'],
+      });
+    } else {
+      // CVV length validation based on card type
+      const cvvLength = data.cvv.length;
+
+      if (data.paymentMethod === 'amex' && cvvLength !== 4) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'American Express cards require a 4-digit CVV.',
+          path: ['cvv'],
+        });
+      }
+
+      if (data.paymentMethod !== 'amex' && cvvLength !== 3) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'CVV must be 3 digits.',
+          path: ['cvv'],
+        });
+      }
+    }
+  }
 });
+
+
 
 // TypeScript Types (inferred from Zod schema)
 export type FormSchema = z.infer<typeof formSchema>;
@@ -74,6 +141,7 @@ export default function PaymentRouteComponent() {
     }
   ];
 
+  const selectedPaymentMethod = methods.watch('paymentMethod')
   return <div>
     <form onSubmit={methods.handleSubmit(onSubmit)} className='px-1'>
       <div>
@@ -87,7 +155,6 @@ export default function PaymentRouteComponent() {
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mt-4">
         {paymentMethods.map((method) => {
-          const selectedPaymentMethod = methods.watch('paymentMethod')
           return (
             <div
               key={method.id}
@@ -120,7 +187,7 @@ export default function PaymentRouteComponent() {
         })}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-4">
+      {selectedPaymentMethod !== 'bank_transfer' ? <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-4">
         <Controller
           name="cardNumber"
           control={methods.control}
@@ -136,7 +203,7 @@ export default function PaymentRouteComponent() {
                 fieldState={{ ...fieldState }}
                 id="card-number"
                 placeholder='Card Number' />
-                
+
               {fieldState.invalid && (
                 <FieldError errors={[fieldState.error]} />
               )}
@@ -181,7 +248,7 @@ export default function PaymentRouteComponent() {
                 field={{ ...field }}
                 fieldState={{ ...fieldState }}
                 id="card-expiry-date"
-                placeholder='Exp. Date' />
+                placeholder='MM/YY' />
 
               {fieldState.invalid && (
                 <FieldError errors={[fieldState.error]} />
@@ -199,7 +266,7 @@ export default function PaymentRouteComponent() {
                 {`CVV`}<span className="text-destructive">{`*`}</span>
               </FieldLabel>
               <InputWithMask
-                mask="000"
+                mask={selectedPaymentMethod === 'amex' ? "0000" : "000"}
                 field={{ ...field }}
                 fieldState={{ ...fieldState }}
                 id="cvv-field"
@@ -210,7 +277,11 @@ export default function PaymentRouteComponent() {
             </Field>
           )}
         />
-      </div >
+      </div > :
+        <div className="p-4 mb-4 text-theme-green rounded-lg bg-theme-green-50 text-lg max-w-3xl mx-auto my-4 flex justify-start items-start gap-1" role="alert">
+          <div className='pt-1'> <Info className='size-4' /> </div> When selecting E-transfer you will be required to send payment in full before your order is released. This may cause delays.
+        </div>
+      }
 
       <div className='mt-5'>
         <Controller

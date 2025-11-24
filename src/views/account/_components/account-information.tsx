@@ -43,8 +43,10 @@ function AccountInformation() {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid} className="gap-0">
               <FieldLabel htmlFor="designation" className="text-xl">
-                {`Designation/License`}<span className="text-destructive">{`*`}</span>
+                {`Designation and Licence #`}<span className="text-destructive">{`*`}</span>
               </FieldLabel>
+
+              {/* <div className="grid grid-cols-2 gap-2"> */}
               <Input
                 {...field}
                 id="designation"
@@ -53,6 +55,16 @@ function AccountInformation() {
                 autoComplete="off"
                 className="h-12 md:text-lg"
               />
+
+              {/* <Input
+                  // {...field}
+                  id="designation"
+                  aria-invalid={fieldState.invalid}
+                  placeholder="Licence"
+                  autoComplete="off"
+                  className="h-12 md:text-lg"
+                /> */}
+              {/* </div> */}
               {fieldState.invalid && (
                 <FieldError errors={[fieldState.error]} />
               )}

@@ -102,7 +102,7 @@ function Address() {
                     {...field}
                     id="address-line-1"
                     aria-invalid={fieldState.invalid}
-                    placeholder="Street, P.O."
+                    placeholder="Street"
                     autoComplete="off"
                     className="h-12 md:text-lg"
                   />
@@ -275,7 +275,7 @@ function Address() {
                     {...field}
                     id="shipping-address-address-line-1"
                     aria-invalid={fieldState.invalid}
-                    placeholder="Street, P.O."
+                    placeholder="Street"
                     autoComplete="off"
                     className="h-12 md:text-lg"
                   />

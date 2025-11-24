@@ -14,7 +14,7 @@ interface Location {
 const LOCATIONS: readonly Location[] = [
   {
     id: '1',
-    name: 'Leaside Location (Pick-up and Delivery)',
+    name: 'Leaside Location (Pick-up or Delivery)',
     address: '40 Laird Drive, Toronto, ON, M4G 3T2'
   },
   {

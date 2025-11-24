@@ -2,7 +2,7 @@ import HeadTitle from "@/components/head-title"
 import { Button } from "@/components/ui/button";
 import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Controller, useForm } from "react-hook-form"
+import { Controller, useFormContext } from "react-hook-form"
 import { useRef } from "react"
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -11,14 +11,14 @@ import useDocumentsStore from "./documents-store";
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
 
 function Documents() {
-  const form = useForm();
+  const form = useFormContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { documents, setDocuments, removeDocument } = useDocumentsStore();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, onChange: (value: File[] | null) => void) => {
     const files = e.target.files;
     if (!files || files.length === 0) {
-      onChange(null);
+      onChange([]);
       return;
     }
 
@@ -53,7 +53,7 @@ function Documents() {
     removeDocument(index);
     if (updatedFiles.length === 0) {
       form.clearErrors('documents');
-      onChange(null);
+      onChange([]);
       return;
     }
     onChange(updatedFiles);
@@ -66,6 +66,9 @@ function Documents() {
           title={`Documents`}
           description={`Please upload any required documents. (eg., Signed Medical Director form, Professional License etc...)`}
         />
+        <p className='text-base font-medium text-foreground/80'>
+          You may additionally provide a screenshot of licence as issued by the licensing authority.
+        </p>
       </div>
       <div className="mt-4 px-1">
         <Controller
@@ -74,7 +77,8 @@ function Documents() {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid} className="gap-0">
               <div className={cn("flex items-center justify-center w-full border rounded-md p-2",
-                (documents && documents.length > 0) && "justify-between items-start gap-2"
+                (documents && documents.length > 0) && "justify-between items-start gap-2",
+                fieldState.invalid && 'border-destructive'
               )}>
                 {documents && documents.length > 0 && (
                   <div className="grid grid-cols-3 gap-1">

@@ -11,7 +11,7 @@ const accountSchema = z.object({
 
 const addressSchema = z.object({
     addressLine_1: z.string().min(1, 'Address line 1 is required'),
-    addressLine_2: z.string().min(1, 'Address line 2 is required'),
+    addressLine_2: z.string(),
     city: z.string().min(1, 'City is required'),
     province: z.string().min(1, 'Province is required'),
     postalCode: z.string().min(1, 'Postal code is required'),
@@ -45,9 +45,12 @@ export const formSchema = z.object({
     account: accountSchema,
     billingAddress: addressSchema,
     shippingAddress: addressSchema,
+    // documents: z
+    //     .any()
+    //     .optional(),
     documents: z
-        .any()
-        .optional(),
+        .array(z.union([z.instanceof(File), z.instanceof(Blob)]))
+        .min(1, "Upload at least one document"),
     delivery: deliverySchema.optional(),
     phone: z.string().min(1, 'Phone is required'),
     emailAddress: z
@@ -85,7 +88,7 @@ export const defaultFormValues: Partial<FormSchema> = {
         province: '',
         postalCode: '',
     },
-    documents: undefined,
+    documents: [],
     delivery: {
         instruction: '',
         hours: {
