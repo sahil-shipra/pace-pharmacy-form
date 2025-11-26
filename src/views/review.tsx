@@ -19,7 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { isErrorResponse } from "@/types/common.api";
 import axios from "axios";
 import { TriangleAlert } from "lucide-react";
@@ -311,8 +311,15 @@ function ReviewRouteComponent() {
               <div className="font-medium">Director Name :</div>
               <div className="sm:col-span-2">{medicalInformation.name}</div>
 
+              {(!medicalInformation.isAlsoMedicalDirector) &&
+                <Fragment>
+                  <div className="font-medium">Director Email :</div>
+                  <div className="sm:col-span-2">{medicalInformation.email}</div>
+                </Fragment>
+              }
+
               <div className="font-medium">License :</div>
-              <div className="sm:col-span-2">{medicalInformation.licenseNo}</div>
+              <div className="sm:col-span-2">{medicalInformation.licenseNo || '-'}</div>
 
               <div className="font-medium">Single Person Application :</div>
               <div className="sm:col-span-2">

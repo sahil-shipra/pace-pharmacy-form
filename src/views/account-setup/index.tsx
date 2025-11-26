@@ -123,17 +123,17 @@ function AccountSetupRouteComponent() {
                             </h2>
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-2 text-lg mt-5">
                                 <div className="font-medium">Account Holder :</div>
-                                <div className="col-span-2">
+                                <div className="md:col-span-2">
                                     {data.accountHolder}
                                 </div>
 
                                 <div className="font-medium">Clinic / Organization :</div>
-                                <div className="col-span-2">
+                                <div className="md:col-span-2">
                                     {data.organizationName}
                                 </div>
 
                                 <div className="font-medium">Your Name :</div>
-                                <div className="col-span-2">
+                                <div className="md:col-span-2">
                                     {data.medicalDirectorName}
                                 </div>
                             </div>

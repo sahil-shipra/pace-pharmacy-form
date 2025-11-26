@@ -8,10 +8,10 @@ export const Route = createFileRoute('/_account')({
 
 function RouteComponent() {
   return <Fragment>
-    <div className='flex justify-center items-center py-[50px]'>
-      <div className='bg-white rounded-2xl p-[50px] container'>
+    <div className='flex justify-center items-center py-4 md:py-[50px]'>
+      <div className='bg-white rounded-2xl p-5 md:p-[50px] container'>
         <div className='flex justify-center items-start gap-5 w-full'>
-          <ScrollArea className='w-full max-h-[calc(100dvh-350px)] -mr-14 pr-12'>
+          <ScrollArea className='w-full md:h-[calc(100dvh-350px)] md:-mr-14 md:pr-12'>
             <Outlet />
           </ScrollArea>
         </div>
