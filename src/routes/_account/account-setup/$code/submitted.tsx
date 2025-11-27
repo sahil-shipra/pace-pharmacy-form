@@ -32,8 +32,9 @@ function RouteComponent() {
               <p className='text-lg font-medium text-foreground/80'>Thank you for completing the Medical Direction authorization.</p>
 
               <p className='text-lg font-medium text-foreground/80'>
-                The Complete application has been submitted to Pace Pharmacy for review.
-                Both you and the account holder will receive confirmation email.
+                The complete application has been submitted to Pace Pharmacy for review.
+                <br />
+                Both you and the account holder will receive a confirmation emails.
               </p>
             </div>
           </div>

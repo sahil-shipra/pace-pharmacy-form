@@ -112,7 +112,7 @@ function AccountSetupRouteComponent() {
                             <CheckCircle /> You have already provided authorization for the professional account at Pace Pharmacy.
                         </p>
                         : <p>
-                            You have been request to provide authorization for the professional account at Pace Pharmacy.
+                            You have been requested to provide authorization for the professional account at Pace Pharmacy.
                         </p>}
                 </div>
                 <div>
@@ -155,8 +155,8 @@ function AccountSetupRouteComponent() {
                                                             <Label htmlFor="r1" className="font-normal text-lg cursor-pointer">
                                                                 <p>
                                                                     I authorize <b className="text-theme-green"> {data.accountHolder} </b> account holder to order under my name for <b className="text-theme-green">{data.organizationName}</b> at their discretion,
-                                                                    <strong>
-                                                                        Without a written and signed prescription for each order.
+                                                                    <strong className="ml-[3px]">
+                                                                        without a written and signed prescription for each order.
                                                                     </strong>
                                                                 </p>
                                                             </Label>
