@@ -65,6 +65,7 @@ function Documents() {
         <HeadTitle
           title={`Documents`}
           description={`Please upload any required documents. (eg., Signed Medical Director form, Professional License etc...)`}
+          showAsterisk
         />
         <p className='text-base font-medium text-foreground/80'>
           You may additionally provide a screenshot of licence as issued by the licensing authority.

@@ -298,7 +298,9 @@ export default function PaymentRouteComponent() {
                 htmlFor="payment-authorization"
                 className={cn("font-normal text-lg", fieldState.invalid && 'text-destructive')}
               >
-                I authorize Pace Pharmacy to charge my card for prescription medications and services as ordered.
+                {selectedPaymentMethod !== 'bank_transfer' ?
+                  `I authorize Pace Pharmacy to charge my card for prescription medications and services as ordered.` :
+                  `I acknowledge that when selecting E-transfer, payment in full must be sent before the order is processed and this may cause delays.`}
               </FieldLabel>
             </Field>
           )}
