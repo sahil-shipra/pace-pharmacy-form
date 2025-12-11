@@ -14,12 +14,12 @@ function RouteComponent() {
     'referenceCode',
     null
   );
-  
+
   // Redirect if code or sessioncode is missing, or if they don't match
   if (!code || !sessioncode || code !== sessioncode) {
     return <Navigate to='/location' />
   }
-  
+
   // Use the matching code
   const referenceCode = code;
 
@@ -47,7 +47,7 @@ function RouteComponent() {
                 <strong>{`What's Next :`}</strong>
                 <ol className="list-disc list-inside space-y-0.5 mt-2 text-theme-green leading-tight text-base">
                   <li>Our team will review your application (typically 1-2 business days).</li>
-                  <li>You will receive an email confirmation, Once your account is activated.</li>
+                  <li>You will receive an email confirmation once your account is activated.</li>
                   <li>Upon activation, you can begin placing orders.</li>
                 </ol>
               </div>

@@ -34,7 +34,7 @@ function RouteComponent() {
               <p className='text-lg font-medium text-foreground/80'>
                 The complete application has been submitted to Pace Pharmacy for review.
                 <br />
-                Both you and the account holder will receive a confirmation emails.
+                Both you and the account holder will receive a confirmation email.
               </p>
             </div>
           </div>
