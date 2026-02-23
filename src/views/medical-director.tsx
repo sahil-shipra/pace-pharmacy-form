@@ -27,6 +27,17 @@ const formSchema = z.object({
     message: 'Valid email is required',
     path: ['email'],
   }
+).refine(
+  (data) => {
+    if (data.isAlsoMedicalDirector === false) {
+      return data.licenseNo && data.licenseNo.length > 0;
+    }
+    return true;
+  },
+  {
+    message: 'License number is required',
+    path: ['licenseNo'],
+  }
 );
 // TypeScript Types (inferred from Zod schema)
 export type FormSchema = z.infer<typeof formSchema>;
