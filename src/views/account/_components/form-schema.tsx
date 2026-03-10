@@ -6,6 +6,7 @@ const accountSchema = z.object({
     holderName: z.string().min(1, 'Holder name is required'),
     designation: z.string().min(1, 'Designation is required'),
     organizationName: z.string().min(1, 'Organization name is required'),
+    clinicType: z.string().optional().default('general-medical'),
     contactPerson: z.string().optional().default(''),
 });
 
@@ -73,6 +74,7 @@ export const defaultFormValues: Partial<FormSchema> = {
         designation: '',
         organizationName: '',
         contactPerson: '',
+        clinicType: '',
     },
     billingAddress: {
         addressLine_1: '',
