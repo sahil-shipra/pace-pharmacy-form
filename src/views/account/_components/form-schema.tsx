@@ -18,12 +18,20 @@ const addressSchema = z.object({
     postalCode: z.string().min(1, 'Postal code is required'),
 });
 
+// const deliveryHoursSchema = z.object({
+//     Monday: z.string().optional().default(''),
+//     Tuesday: z.string().optional().default(''),
+//     Wednesday: z.string().optional().default(''),
+//     Thursday: z.string().optional().default(''),
+//     Friday: z.string().optional().default(''),
+// });
+
 const deliveryHoursSchema = z.object({
-    Monday: z.string().optional().default(''),
-    Tuesday: z.string().optional().default(''),
-    Wednesday: z.string().optional().default(''),
-    Thursday: z.string().optional().default(''),
-    Friday: z.string().optional().default(''),
+    Monday: z.string().min(1, 'Monday hours are required'),
+    Tuesday: z.string().min(1, 'Tuesday hours are required'),
+    Wednesday: z.string().min(1, 'Wednesday hours are required'),
+    Thursday: z.string().min(1, 'Thursday hours are required'),
+    Friday: z.string().min(1, 'Friday hours are required'),
 });
 
 const deliverySchema = z.object({
