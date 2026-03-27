@@ -11,6 +11,7 @@ function Delivery() {
         <HeadTitle
           title={`Delivery Hours / Operating Hours (if applicable)`}
           description={`Please indicate your operating hours for deliveries. Include days you are closed or if you close early. As per the OCP 'Delivery of Prescriptions' Policy, we require a signature when delivering all prescription drugs.`}
+          showAsterisk
         />
       </div>
 
@@ -26,7 +27,7 @@ function Delivery() {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid} className="gap-0">
                   <FieldLabel htmlFor={`${day.toLowerCase()}-hours`} className="text-xl">
-                    {day}
+                    {day} <span className="text-destructive">{`*`}</span>
                   </FieldLabel>
                   <Input
                     {...field}
