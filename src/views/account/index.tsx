@@ -25,6 +25,14 @@ function AccountRouteComponent() {
   });
 
   const onSubmit = (data: FormSchema) => {
+    data = {
+      ...data,
+      account: {
+        ...data.account,
+        holderName: `${data.account.firstName} ${data.account.lastName}`
+      }
+    }
+
     setAccountInformation(data);
     navigate({ to: "/payment" });
   };

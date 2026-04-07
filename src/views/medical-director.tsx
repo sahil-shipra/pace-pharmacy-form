@@ -13,7 +13,9 @@ import { Fragment } from 'react/jsx-runtime'
 
 const formSchema = z.object({
   isAlsoMedicalDirector: z.boolean().optional().default(false),
-  name: z.string().min(1, 'Name is required'),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  name: z.string(),
   licenseNo: z.string().optional().default(''),
   email: z.string().optional().default(''),
 }).refine(
@@ -44,25 +46,31 @@ export type FormSchema = z.infer<typeof formSchema>;
 
 function MedicalRouteComponent() {
   const navigate = useNavigate();
-  const [paymentInformation, setPaymentInformation] = useSessionStorage<FormSchema | null>(
+  const [medicalDirectorInformation, setMedicalDirectorInformation] = useSessionStorage<FormSchema | null>(
     SESSION_KEYS.MEDICAL_DIRECTOR_KEY,
     null
   );
 
   const defaultFormValues: Partial<FormSchema> = {
     isAlsoMedicalDirector: false,
+    firstName: '',
+    lastName: '',
     name: '',
     licenseNo: ''
   }
 
   const methods = useForm<FormSchema>({
     resolver: zodResolver(formSchema as any),
-    defaultValues: paymentInformation || defaultFormValues,
+    defaultValues: medicalDirectorInformation || defaultFormValues,
     mode: 'onBlur', // Validate on blur for better UX
   });
 
   const onSubmit = (data: any) => {
-    setPaymentInformation(data);
+    data = {
+      ...data,
+      name: `${data.firstName} ${data.lastName}`
+    }
+    setMedicalDirectorInformation(data);
     navigate({ to: "/review" });
   };
 
@@ -119,7 +127,7 @@ function MedicalRouteComponent() {
 
           <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
             <Controller
-              name="name"
+              name="firstName"
               control={methods.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid} className="gap-0">
@@ -130,7 +138,31 @@ function MedicalRouteComponent() {
                     {...field}
                     id="medical-director-name"
                     aria-invalid={fieldState.invalid}
-                    placeholder="eg., John Mark"
+                    placeholder="John"
+                    autoComplete="off"
+                    className="h-12 md:text-lg"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+
+            <Controller
+              name="lastName"
+              control={methods.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid} className="gap-0">
+                  <FieldLabel htmlFor="medical-director-name" className="text-xl">
+                    {`Medical Director's Name`}<span className="text-destructive">{`*`}</span>
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    type='text'
+                    id="medical-director-name"
+                    aria-invalid={fieldState.invalid}
+                    placeholder="Mark"
                     autoComplete="off"
                     className="h-12 md:text-lg"
                   />
@@ -148,6 +180,7 @@ function MedicalRouteComponent() {
                 <Field data-invalid={fieldState.invalid} className="gap-0">
                   <FieldLabel htmlFor="medical-director-license" className="text-xl">
                     {`Medical Director's License #`}
+                    <span className="text-destructive">{`*`}</span>
                   </FieldLabel>
                   <Input
                     {...field}
@@ -163,33 +196,35 @@ function MedicalRouteComponent() {
                 </Field>
               )}
             />
-          </div>
 
-          {!isAlsoMedicalDirector && (
-            <Controller
-              name="email"
-              control={methods.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid} className="gap-0">
-                  <FieldLabel htmlFor="medical-director-email" className="text-xl">
-                    {`Medical Director's Email (An authorization link will be sent to this email address)*`}
-                    <span className="text-destructive">{`*`}</span>
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    id="medical-director-email"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="eg., John Mark"
-                    autoComplete="off"
-                    className="h-12 md:text-lg"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-          )}
+            {!isAlsoMedicalDirector && (
+              <Controller
+                name="email"
+                control={methods.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid} className="gap-0">
+                    <FieldLabel htmlFor="medical-director-email" className="text-xl">
+                      {`Medical Director's Email`}
+                      <span className="text-destructive">{`*`}</span>
+                    </FieldLabel>
+
+                    <Input
+                      {...field}
+                      id="medical-director-email"
+                      aria-invalid={fieldState.invalid}
+                      placeholder="eg., John Mark"
+                      autoComplete="off"
+                      className="h-12 md:text-lg"
+                    />
+                    <div className='text-sm pt-0.5'>(An authorization link will be sent to this email address)</div>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+            )}
+          </div>
         </div>
 
         <FooterButtons

@@ -3,10 +3,12 @@ import { z } from 'zod';
 
 // Zod v4 Schema
 const accountSchema = z.object({
-    holderName: z.string().min(1, 'Holder name is required'),
+    firstName: z.string().min(1, 'First name is required'),
+    lastName: z.string().min(1, 'Last name is required'),
+    holderName: z.string(),
     designation: z.string().min(1, 'Designation is required'),
     organizationName: z.string().min(1, 'Organization name is required'),
-    clinicType: z.string().optional().default('general-medical'),
+    clinicType: z.string().min(1, 'Clinic type is required').default('general-medical'),
     contactPerson: z.string().optional().default(''),
 });
 
@@ -78,6 +80,8 @@ export type DeliveryInfo = z.infer<typeof deliverySchema>;
 // Default values matching the schema
 export const defaultFormValues: Partial<FormSchema> = {
     account: {
+        firstName: '',
+        lastName: '',
         holderName: '',
         designation: '',
         organizationName: '',

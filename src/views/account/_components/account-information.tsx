@@ -1,6 +1,7 @@
 import HeadTitle from "@/components/head-title"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Controller, useFormContext } from "react-hook-form";
@@ -8,35 +9,64 @@ import { Controller, useFormContext } from "react-hook-form";
 function AccountInformation() {
   const form = useFormContext();
   return (
-    <div className="pb-5">
+    <div className="pb-3">
       <HeadTitle
         title={`Account Information`}
         description={`Primary account holder details and organization information.`}
       />
 
       <div className="grid md:grid-cols-2 gap-5 mt-4 px-1">
-        <Controller
-          name="account.holderName"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid} className="gap-0">
-              <FieldLabel htmlFor="account-holder-name" className="text-xl">
-                {`Account Holder's Name`}<span className="text-destructive">{`*`}</span>
-              </FieldLabel>
-              <Input
-                {...field}
-                id="account-holder-name"
-                aria-invalid={fieldState.invalid}
-                placeholder="eg., Mark Wood"
-                autoComplete="off"
-                className="h-12 md:text-lg"
-              />
-              {fieldState.invalid && (
-                <FieldError errors={[fieldState.error]} />
+
+        <div className="col-span-2 space-y-1">
+          <Label className="text-xl">Account Holder's Name</Label>
+          <div className="grid md:grid-cols-2 gap-5">
+            <Controller
+              name="account.firstName"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid} className="gap-0">
+                  <FieldLabel htmlFor="account-holder-name" className="text-sm">
+                    {`First Name`}<span className="text-destructive">{`*`}</span>
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    id="account-holder-name"
+                    aria-invalid={fieldState.invalid}
+                    placeholder="Mark"
+                    autoComplete="off"
+                    className="h-12 md:text-lg"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
               )}
-            </Field>
-          )}
-        />
+            />
+
+            <Controller
+              name="account.lastName"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid} className="gap-0">
+                  <FieldLabel htmlFor="account-holder-name" className="text-sm">
+                    {`Last Name`}<span className="text-destructive">{`*`}</span>
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    id="account-holder-name"
+                    aria-invalid={fieldState.invalid}
+                    placeholder="Wood"
+                    autoComplete="off"
+                    className="h-12 md:text-lg"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+          </div>
+        </div>
 
         <Controller
           name="account.designation"
@@ -127,7 +157,7 @@ function AccountInformation() {
               (field.value && !["general-medical", "aesthetics", "naturopathic", "other"].includes(field.value));
             const selectValue = isOther ? "other" : field.value;
             const otherValue = isOther ? field.value : "";
-
+            console.log('fieldState.invalid', fieldState.invalid)
             return (
               <Field data-invalid={fieldState.invalid} className="gap-0">
                 <FieldLabel htmlFor="clinic-type" className="text-xl">

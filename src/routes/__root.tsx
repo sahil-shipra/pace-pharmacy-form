@@ -39,7 +39,7 @@ function RootComponent() {
                   <img src="/logo.png" alt="logo" className="h-20 sm:h-auto max-w-fit sm:max-w-none" />
                 </div>
                 <div className="text-center sm:text-right">
-                  <h1 className="font-medium text-xl sm:text-2xl md:text-[32px] leading-tight sm:leading-[40px]">
+                  <h1 className="font-medium text-xl sm:text-2xl md:text-[32px] leading-tight sm:leading-10">
                     {pathname.includes("/account-setup/") ? `Authorization` : `New Account Setup`}
                   </h1>
                 </div>
