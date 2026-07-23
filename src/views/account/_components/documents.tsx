@@ -64,12 +64,12 @@ function Documents() {
       <div>
         <HeadTitle
           title={`Documents`}
-          description={`Please upload any required documents. (eg., Signed Medical Director form, Professional License etc...)`}
+          description={`Please upload proof of your professional license (eg. license image or a screenshot of the licence as issued by the licensing authority) and, if applicable, your signed medical director form.`}
           showAsterisk
         />
-        <p className='text-base font-medium text-foreground/80'>
+        {/* <p className='text-base font-medium text-foreground/80'>
           You may additionally provide a screenshot of licence as issued by the licensing authority.
-        </p>
+        </p> */}
       </div>
       <div className="mt-4 px-1">
         <Controller
