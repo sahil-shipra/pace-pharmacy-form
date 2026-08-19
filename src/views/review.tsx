@@ -4,14 +4,18 @@ import { SESSION_KEYS } from "@/constants";
 import useSessionStorage from "@/hooks/use-session-storage";
 import { useNavigate } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createAccount } from "./_api";
+import {
+  createAccount,
+  getErrorMessage,
+  getSafeSubmitErrorContext,
+  toAccountSubmitError,
+} from "./_api";
 import type {
   AccountFormSchema,
   ACKFormSchema,
   MedicalFormSchema,
   PaymentFormSchema,
 } from "./_types";
-import { toast } from "sonner"
 import {
   Dialog,
   DialogContent,
@@ -21,13 +25,15 @@ import {
 } from "@/components/ui/dialog"
 import { Fragment, useEffect, useState } from "react";
 import { isErrorResponse } from "@/types/common.api";
-import axios from "axios";
 import { TriangleAlert } from "lucide-react";
 import useDocumentsStore from "./account/_components/documents-store";
+import * as Sentry from "@sentry/react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 const postAccount = async (data: FormData) => {
   const res = await createAccount(data);
-  if (isErrorResponse(res)) throw res.error;
+  if (isErrorResponse(res)) throw new Error(res.message);
   return res;
 };
 
@@ -44,7 +50,7 @@ const ProvincesEnum = {
   saskatchewan: "Saskatchewan",
 };
 
-export const PaymentMethodLabel: Record<string, string> = {
+const PaymentMethodLabel: Record<string, string> = {
   "visa": 'VISA',
   "mastercard": 'Master Card',
   "amex": 'American Express',
@@ -62,45 +68,9 @@ function ReviewRouteComponent() {
   const navigate = useNavigate();
   const [showErrorDialog, onChangeErrorDialog] = useState(false)
   const [error, setError] = useState('')
-  // Mutations
-  const { mutate: onSubmit, ...mutation } = useMutation({
-    mutationFn: postAccount,
-    onSuccess: (data) => {
-      // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: ["todos"] });
-      sessionStorage.clear();
-
-      setCode(data.data.referenceCode)
-      navigate({
-        to: "/submitted", search: {
-          code: data.data.referenceCode
-        }
-      });
-    },
-    onError: (res) => {
-      onChangeErrorDialog(true);
-      const err = res
-      if (axios.isAxiosError(err)) {
-        // Now TypeScript knows it's AxiosError
-        const status = err.response?.status;
-        // const data = err.response?.data.error;
-
-        if (status === 409) {
-          setError(`This email address is already registered. Please use a different email or log in.`)
-          toast.error(
-            `This email address is already registered. Please use a different email or log in.`,
-            { className: "border border-red-500 text-red-600" }
-          );
-        }
-      } else {
-        // Non-Axios error
-        console.error("General error:", err.message);
-        toast.error(err.message, {
-          className: "border border-red-500 text-red-600"
-        });
-      }
-    }
-  });
+  const [rawError, setRawError] = useState<unknown>(null);
+  const [sentryEventId, setSentryEventId] = useState<string | null>(null);
+  const [reportState, setReportState] = useState<'idle' | 'sending' | 'sent' | 'failed'>('idle');
 
   const [accountInformation] = useSessionStorage<AccountFormSchema | null>(
     SESSION_KEYS.ACCOUNT_KEY,
@@ -129,6 +99,117 @@ function ReviewRouteComponent() {
 
   const { documents } = useDocumentsStore();
 
+  const buildSafeContext = (err: unknown, message: string) =>
+    getSafeSubmitErrorContext(err, message, {
+      documentCount: documents?.length ?? 0,
+      // Payment method only (e.g. visa) — never card number / CVV / name.
+      paymentMethod: paymentInformation?.paymentMethod,
+      preferredLocation,
+      hasAccountDraft: Boolean(accountInformation),
+      hasPaymentDraft: Boolean(paymentInformation),
+      hasAckDraft: Boolean(ackInformation),
+      hasMedicalDraft: Boolean(medicalInformation),
+    });
+
+  // Mutations
+  const { mutate: onSubmit, ...mutation } = useMutation({
+    mutationFn: postAccount,
+    onSuccess: (data) => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+      sessionStorage.clear();
+
+      setCode(data.data.referenceCode)
+      navigate({
+        to: "/submitted", search: {
+          code: data.data.referenceCode
+        }
+      });
+    },
+    onError: (res, variables) => {
+      const json = variables.get("json");
+
+      const data = JSON.parse(json as string);
+
+      const email = data.account.emailAddress;
+
+      const firstName = data.account.account.firstName;
+      const lastName = data.account.account.lastName;
+      const name = `${firstName} ${lastName}`;
+
+      onChangeErrorDialog(true);
+      const message = getErrorMessage(res);
+      setError(message);
+      setRawError(res);
+      setReportState('idle');
+
+      const safeContext = buildSafeContext(res, message);
+      const eventId = Sentry.captureException(toAccountSubmitError(res, message), {
+        tags: {
+          feature: "account-submit",
+          api_endpoint: "/account",
+          http_status: safeContext.httpStatus != null
+            ? String(safeContext.httpStatus)
+            : "none",
+        },
+        user: {
+          name,
+          email,
+        },
+        contexts: {
+          account_submit: safeContext,
+        },
+      });
+      setSentryEventId(eventId);
+
+      console.error("Request failed:", res);
+    }
+  });
+
+  const handleReportProblem = () => {
+    if (reportState === 'sending' || reportState === 'sent') return;
+
+    setReportState('sending');
+    try {
+      const safeContext = buildSafeContext(rawError, error);
+      Sentry.captureFeedback(
+        {
+          message: `User reported a problem submitting the account form: ${error || "Unknown error"}`,
+          url: window.location.href,
+          source: "review-report-button",
+          associatedEventId: sentryEventId ?? undefined,
+          tags: {
+            feature: "account-submit",
+            user_reported: "true",
+            api_endpoint: "/account",
+            http_status: safeContext.httpStatus != null
+              ? String(safeContext.httpStatus)
+              : "none",
+          },
+        },
+        {
+          captureContext: {
+            contexts: {
+              account_submit: safeContext,
+            },
+          },
+        }
+      );
+      setReportState('sent');
+    } catch (reportErr) {
+      console.error("Failed to send Sentry feedback:", reportErr);
+      setReportState('failed');
+    }
+  };
+
+  const redirectForMissingDocuments = () => {
+    toast.error(
+      "Please upload your license documents before submitting. If you refreshed the page, upload them again on the Account step.",
+      { className: "border border-red-500 text-red-600" }
+    );
+    navigate({ to: "/account" });
+  };
+
   const checkForData = () => {
     const dataChecks = [
       // { key: preferredLocation, message: 'Preferred location is not set yet.', route: '/location' },
@@ -144,6 +225,12 @@ function ReviewRouteComponent() {
         navigate({ to: route });
         return false;
       }
+    }
+
+    // Files live only in Zustand — session restore cannot bring them back
+    if (!documents?.length) {
+      redirectForMissingDocuments();
+      return false;
     }
 
     return true;
@@ -169,6 +256,10 @@ function ReviewRouteComponent() {
       medicalInformation &&
       ackInformation
     ) {
+      if (!documents?.length) {
+        redirectForMissingDocuments();
+        return;
+      }
 
       if (accountInformation.sameAsBilling) {
         accountInformation.shippingAddress = accountInformation.billingAddress
@@ -176,14 +267,11 @@ function ReviewRouteComponent() {
 
       const formData = new FormData();
 
-      if (documents && documents.length > 0) {
-        // Append images from the state to the FormData (files only, not previews)
-        documents.forEach((file) => {
-          if (file) {
-            formData.append('documents', file);
-          }
-        });
-      }
+      documents.forEach((file) => {
+        if (file) {
+          formData.append('documents', file);
+        }
+      });
 
       formData.append("json", JSON.stringify({
         account: accountInformation,
@@ -342,7 +430,7 @@ function ReviewRouteComponent() {
         <DialogContent className="font-enzyme">
           <DialogHeader>
             <DialogTitle>
-              <div className="flex justify-start items-center gap-2 font-normal">
+              <div className="flex justify-start items-center gap-2 font-normal text-destructive">
                 <TriangleAlert /> Something went wrong!
               </div>
             </DialogTitle>
@@ -352,6 +440,33 @@ function ReviewRouteComponent() {
           </DialogHeader>
           <div className="flex items-center p-2 mb-4 text-lg text-destructive rounded-xl" role="alert">
             {error}
+          </div>
+
+          <div className="flex flex-col items-end gap-1">
+            <Button
+              type="button"
+              variant={"link"}
+              onClick={handleReportProblem}
+              disabled={reportState === 'sending' || reportState === 'sent'}
+              className="text-sm text-red-600 underline hover:text-red-700 disabled:no-underline disabled:opacity-60 cursor-pointer p-0 m-0"
+            >
+              {reportState === 'sending'
+                ? 'Sending report…'
+                : reportState === 'sent'
+                  ? 'Problem reported'
+                  : 'Report this problem'}
+            </Button>
+            {reportState === 'sent' && (
+              <p className="text-xs text-muted-foreground">
+                Thanks — your report was sent
+                {sentryEventId ? ` (ref: ${sentryEventId.slice(0, 8)})` : ''}.
+              </p>
+            )}
+            {reportState === 'failed' && (
+              <p className="text-xs text-destructive">
+                Couldn't send the report. Please try again.
+              </p>
+            )}
           </div>
         </DialogContent>
       </Dialog>

@@ -3,17 +3,17 @@ export type SuccessResponse<T = any> = {
     success: true;
     data: T;
     message?: string;
-    timestamp: string;
+    timestamp?: string;
 };
 
+/** Flat error envelope from the API (matches backend createErrorResponse). */
 export type ErrorResponse = {
     success: false;
-    error: {
-        code: string;
-        message: string;
-        details?: any;
-    };
-    timestamp: string;
+    code: string;
+    message: string;
+    field?: string;
+    fields?: Record<string, string>;
+    timestamp?: string;
 };
 
 export type ApiResponse<T = any> = SuccessResponse<T> | ErrorResponse;

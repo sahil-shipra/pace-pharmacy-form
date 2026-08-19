@@ -157,7 +157,7 @@ function AccountInformation() {
               (field.value && !["general-medical", "aesthetics", "naturopathic", "other"].includes(field.value));
             const selectValue = isOther ? "other" : field.value;
             const otherValue = isOther ? field.value : "";
-            console.log('fieldState.invalid', fieldState.invalid)
+
             return (
               <Field data-invalid={fieldState.invalid} className="gap-0">
                 <FieldLabel htmlFor="clinic-type" className="text-xl">

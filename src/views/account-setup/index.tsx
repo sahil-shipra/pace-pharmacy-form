@@ -22,7 +22,7 @@ import useSessionStorage from "@/hooks/use-session-storage"
 
 async function getApplicationData(code: string) {
     const response = await getApplication(code);
-    if (isErrorResponse(response)) throw response.error
+    if (isErrorResponse(response)) throw new Error(response.message);
     return response.data;
 }
 
@@ -38,6 +38,11 @@ const formSchema = z.object({
 // TypeScript Types (inferred from Zod schema)
 export type FormSchema = z.infer<typeof formSchema>;
 
+async function postApplication(data: FormSchema) {
+    const response = await submitApplication(data);
+    if (isErrorResponse(response)) throw new Error(response.message);
+    return response;
+}
 function AccountSetupRouteComponent() {
     const [_, SetIsSubmitted] = useSessionStorage<boolean | null>(
         'AuthorizationSubmitted',
@@ -56,7 +61,7 @@ function AccountSetupRouteComponent() {
 
     const { mutate: SubmitApplication, isPending } = useMutation({
         mutationKey: ['medical-director-authorization', code],
-        mutationFn: submitApplication,
+        mutationFn: postApplication,
         onSuccess: () => {
             SetIsSubmitted(true)
             navigate({

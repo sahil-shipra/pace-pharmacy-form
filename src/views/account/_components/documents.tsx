@@ -41,10 +41,11 @@ function Documents() {
       return;
     }
 
-    // Clear any previous errors
+    // Clear any previous errors; keep RHF + Zustand in sync (accumulate uploads)
     form.clearErrors('documents');
-    setDocuments([...documents, ...fileArray]);
-    onChange(fileArray);
+    const nextDocuments = [...documents, ...fileArray];
+    setDocuments(nextDocuments);
+    onChange(nextDocuments);
     e.target.value = "";
   };
 
