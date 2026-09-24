@@ -274,10 +274,8 @@ function AccountSetupRouteComponent() {
                                                                     control={methods.control}
                                                                     render={({ field: innerField, fieldState: innerFieldState }) => (
                                                                         <>
-                                                                            <span className="font-normal text-lg leading-relaxed">
-                                                                                <Label htmlFor="r1" className="font-normal text-lg cursor-pointer">
-                                                                                    I authorize the following individuals{' '}
-                                                                                </Label>
+                                                                            <label htmlFor="r1" className="font-normal text-lg cursor-pointer leading-relaxed">
+                                                                                I authorize the following individuals{' '}
                                                                                 <input
                                                                                     {...innerField}
                                                                                     id="authorized-individuals"
@@ -291,12 +289,10 @@ function AccountSetupRouteComponent() {
                                                                                         innerFieldState.invalid ? "border-destructive placeholder:text-destructive/60" : "border-foreground/60 focus:border-theme-green"
                                                                                     )}
                                                                                 />
-                                                                                <Label htmlFor="r1" className="font-normal text-lg cursor-pointer">
-                                                                                    {' '}to place orders under my name for{' '}
-                                                                                    <b className="text-theme-green">{data.organizationName}</b>,{' '}
-                                                                                    without a signed prescription for each order.
-                                                                                </Label>
-                                                                            </span>
+                                                                                {' '}to place orders under my name for{' '}
+                                                                                <b className="text-theme-green">{data.organizationName}</b>,{' '}
+                                                                                without a signed prescription for each order.
+                                                                            </label>
                                                                             {innerFieldState.invalid && prescriptionRequirement === 'withoutPrescription' && (
                                                                                 <span className="text-destructive text-sm block mt-1">
                                                                                     {innerFieldState.error?.message}
