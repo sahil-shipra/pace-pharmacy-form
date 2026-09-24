@@ -334,6 +334,27 @@ function ReviewRouteComponent() {
               <div className="sm:col-span-2">
                 {accountInformation.emailAddress}
               </div>
+
+              {accountInformation.account.contactPerson && (
+                <Fragment>
+                  <div className="font-medium">Contact Person :</div>
+                  <div className="sm:col-span-2">{accountInformation.account.contactPerson}</div>
+                </Fragment>
+              )}
+
+              {accountInformation.account.contactPersonPhone && (
+                <Fragment>
+                  <div className="font-medium">Contact Person Phone :</div>
+                  <div className="sm:col-span-2">{accountInformation.account.contactPersonPhone}</div>
+                </Fragment>
+              )}
+
+              {accountInformation.account.contactPersonEmail && (
+                <Fragment>
+                  <div className="font-medium">Contact Person Email :</div>
+                  <div className="sm:col-span-2">{accountInformation.account.contactPersonEmail}</div>
+                </Fragment>
+              )}
             </div>
           </section>
         )}
@@ -374,16 +395,24 @@ function ReviewRouteComponent() {
               Acknowledgements
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-2">
-              <div className="font-medium">Financial Responsibility :</div>
+              <div className="font-medium">Cardholder Name :</div>
               <div className="sm:col-span-2">
-                {ackInformation.nameToAcknowledge}
+                {(ackInformation as any).cardholderName}
               </div>
 
-              <div className="font-medium">Terms Acknowledgement :</div>
+              <div className="font-medium">Cardholder Consent :</div>
               <div className="sm:col-span-2">
-                {ackInformation.acknowledgementConsent
-                  ? "Accepted"
-                  : "Declined"}
+                {(ackInformation as any).cardholderConsent ? "Accepted" : "Declined"}
+              </div>
+
+              <div className="font-medium">Account Holder Name :</div>
+              <div className="sm:col-span-2">
+                {(ackInformation as any).accountHolderName}
+              </div>
+
+              <div className="font-medium">Account Holder Consent :</div>
+              <div className="sm:col-span-2">
+                {(ackInformation as any).accountHolderConsent ? "Accepted" : "Declined"}
               </div>
             </div>
           </section>

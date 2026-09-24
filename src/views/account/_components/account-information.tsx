@@ -150,6 +150,52 @@ function AccountInformation() {
         />
 
         <Controller
+          name="account.contactPersonPhone"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid} className="gap-0">
+              <FieldLabel htmlFor="contact-person-phone" className="text-xl">
+                {`Contact Person's Phone # (if different)`}
+              </FieldLabel>
+              <Input
+                {...field}
+                id="contact-person-phone"
+                aria-invalid={fieldState.invalid}
+                placeholder="eg., 416-555-0100"
+                autoComplete="off"
+                className={cn("h-12 md:text-lg")}
+              />
+              {fieldState.invalid && (
+                <FieldError errors={[fieldState.error]} />
+              )}
+            </Field>
+          )}
+        />
+
+        <Controller
+          name="account.contactPersonEmail"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid} className="gap-0">
+              <FieldLabel htmlFor="contact-person-email" className="text-xl">
+                {`Contact Person's Email (if different)`}
+              </FieldLabel>
+              <Input
+                {...field}
+                id="contact-person-email"
+                aria-invalid={fieldState.invalid}
+                placeholder="eg., contact@clinic.com"
+                autoComplete="off"
+                className={cn("h-12 md:text-lg")}
+              />
+              {fieldState.invalid && (
+                <FieldError errors={[fieldState.error]} />
+              )}
+            </Field>
+          )}
+        />
+
+        <Controller
           name="account.clinicType"
           control={form.control}
           render={({ field, fieldState }) => {

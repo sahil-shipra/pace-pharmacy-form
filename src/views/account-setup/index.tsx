@@ -6,8 +6,9 @@ import {
     RadioGroupItem,
 } from "@/components/ui/radio-group"
 import { Controller, useForm } from "react-hook-form"
-import { Field, FieldLabel, FieldSet } from "@/components/ui/field"
+import { Field, FieldError, FieldLabel, FieldSet } from "@/components/ui/field"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Navigate, useNavigate, useParams } from "@tanstack/react-router"
 import { useMutation, useQuery } from "@tanstack/react-query"
@@ -28,12 +29,36 @@ async function getApplicationData(code: string) {
 
 const formSchema = z.object({
     referenceCode: z.string().min(1, 'Reference Code is required.'),
-    accountAuthorization: z.boolean().refine(val => val === true, {
-        message: 'You must authorize your account.'
+    // Medical Director Confirmations
+    confirmation1: z.boolean().refine(val => val === true, {
+        message: 'You must confirm this item.'
     }),
+    confirmation2: z.boolean().refine(val => val === true, {
+        message: 'You must confirm this item.'
+    }),
+    confirmation3: z.boolean().refine(val => val === true, {
+        message: 'You must confirm this item.'
+    }),
+    // Prescription Requirement
     prescriptionRequirement: z.enum(['withPrescription', 'withoutPrescription']),
+    authorizedIndividuals: z.string().optional().default(''),
+    // Final authorization
+    accountAuthorization: z.boolean().refine(val => val === true, {
+        message: 'You must provide your authorization.'
+    }),
     medicalDirectorEmail: z.string().default('')
-});
+}).refine(
+    (data) => {
+        if (data.prescriptionRequirement === 'withoutPrescription') {
+            return data.authorizedIndividuals && data.authorizedIndividuals.trim().length > 0;
+        }
+        return true;
+    },
+    {
+        message: 'Please enter the name(s) of authorized individuals.',
+        path: ['authorizedIndividuals'],
+    }
+);
 
 // TypeScript Types (inferred from Zod schema)
 export type FormSchema = z.infer<typeof formSchema>;
@@ -43,6 +68,7 @@ async function postApplication(data: FormSchema) {
     if (isErrorResponse(response)) throw new Error(response.message);
     return response;
 }
+
 function AccountSetupRouteComponent() {
     const [_, SetIsSubmitted] = useSessionStorage<boolean | null>(
         'AuthorizationSubmitted',
@@ -75,6 +101,10 @@ function AccountSetupRouteComponent() {
         resolver: zodResolver(formSchema as any),
         defaultValues: {
             referenceCode: code,
+            confirmation1: false,
+            confirmation2: false,
+            confirmation3: false,
+            authorizedIndividuals: '',
             accountAuthorization: false,
         },
     });
@@ -83,6 +113,8 @@ function AccountSetupRouteComponent() {
         if (!isSuccess || !data) return false;
         return (data.application.isSubmitted || !(data.application.isActive && !data.application.isExpired))
     }, [isSuccess, data])
+
+    const prescriptionRequirement = methods.watch('prescriptionRequirement');
 
     const onSubmit = (formData: FormSchema) => {
         SubmitApplication({ ...formData, medicalDirectorEmail: data?.medicalDirectorEmail || '' })
@@ -145,6 +177,86 @@ function AccountSetupRouteComponent() {
 
                             {!isApplicationSubmitted &&
                                 <Fragment>
+                                    {/* ── Medical Director Confirmations ── */}
+                                    <div className="space-y-4">
+                                        <h2 className="text-xl font-normal text-theme-green">
+                                            Medical Director Confirmations
+                                        </h2>
+                                        <p className="text-base text-foreground/80">
+                                            For medications ordered or prescribed under my medical direction, I confirm that:
+                                        </p>
+
+                                        <Controller
+                                            name="confirmation1"
+                                            control={methods.control}
+                                            render={({ field, fieldState }) => (
+                                                <Field orientation="horizontal">
+                                                    <Checkbox
+                                                        id="confirmation-1"
+                                                        checked={field.value}
+                                                        onCheckedChange={field.onChange}
+                                                    />
+                                                    <FieldLabel
+                                                        htmlFor="confirmation-1"
+                                                        className={cn("font-normal text-lg cursor-pointer", fieldState.invalid && 'text-destructive')}
+                                                    >
+                                                        Individuals administering medications have been appropriately trained and assessed as competent to administer the medications provided.
+                                                    </FieldLabel>
+                                                    {fieldState.invalid && (
+                                                        <FieldError errors={[fieldState.error]} />
+                                                    )}
+                                                </Field>
+                                            )}
+                                        />
+
+                                        <Controller
+                                            name="confirmation2"
+                                            control={methods.control}
+                                            render={({ field, fieldState }) => (
+                                                <Field orientation="horizontal">
+                                                    <Checkbox
+                                                        id="confirmation-2"
+                                                        checked={field.value}
+                                                        onCheckedChange={field.onChange}
+                                                    />
+                                                    <FieldLabel
+                                                        htmlFor="confirmation-2"
+                                                        className={cn("font-normal text-lg cursor-pointer", fieldState.invalid && 'text-destructive')}
+                                                    >
+                                                        Where an individual is not independently authorized to perform a controlled act, appropriate delegation and documentation are in place in accordance with applicable legislation and the requirements of your regulatory college.
+                                                    </FieldLabel>
+                                                    {fieldState.invalid && (
+                                                        <FieldError errors={[fieldState.error]} />
+                                                    )}
+                                                </Field>
+                                            )}
+                                        />
+
+                                        <Controller
+                                            name="confirmation3"
+                                            control={methods.control}
+                                            render={({ field, fieldState }) => (
+                                                <Field orientation="horizontal">
+                                                    <Checkbox
+                                                        id="confirmation-3"
+                                                        checked={field.value}
+                                                        onCheckedChange={field.onChange}
+                                                    />
+                                                    <FieldLabel
+                                                        htmlFor="confirmation-3"
+                                                        className={cn("font-normal text-lg cursor-pointer", fieldState.invalid && 'text-destructive')}
+                                                    >
+                                                        Appropriate emergency training, procedures, equipment and supplies are in place for the medications and procedures being provided.
+                                                    </FieldLabel>
+                                                    {fieldState.invalid && (
+                                                        <FieldError errors={[fieldState.error]} />
+                                                    )}
+                                                </Field>
+                                            )}
+                                        />
+                                    </div>
+
+                                    {/* ── Prescription Requirement ── */}
                                     <div>
                                         <Controller
                                             name="prescriptionRequirement"
@@ -155,28 +267,53 @@ function AccountSetupRouteComponent() {
                                                         Prescription Requirement <span className="text-destructive">*</span>
                                                     </h2>
                                                     <RadioGroup onValueChange={field.onChange} value={field.value}>
-                                                        <div className="flex items-center gap-3">
-                                                            <RadioGroupItem value="withoutPrescription" id="r1" />
-                                                            <Label htmlFor="r1" className="font-normal text-lg cursor-pointer">
-                                                                <p>
-                                                                    I authorize <b className="text-theme-green"> {data.accountHolder} </b> account holder to order under my name for <b className="text-theme-green">{data.organizationName}</b> at their discretion,
-                                                                    <strong className="ml-[3px]">
-                                                                        without a written and signed prescription for each order.
-                                                                    </strong>
-                                                                </p>
-                                                            </Label>
+                                                        <div className="flex items-start gap-3">
+                                                            <RadioGroupItem value="withoutPrescription" id="r1" className="mt-1" />
+                                                            <div className="flex-1">
+                                                                <Label htmlFor="r1" className="font-normal text-lg cursor-pointer">
+                                                                    I authorize the following individuals to place orders under my name for{' '}
+                                                                    <b className="text-theme-green">{data.organizationName}</b>,{' '}
+                                                                    without a signed prescription for each order.
+                                                                </Label>
+                                                                {prescriptionRequirement === 'withoutPrescription' && (
+                                                                    <Controller
+                                                                        name="authorizedIndividuals"
+                                                                        control={methods.control}
+                                                                        render={({ field: innerField, fieldState: innerFieldState }) => (
+                                                                            <Field data-invalid={innerFieldState.invalid} className="gap-0 mt-2">
+                                                                                <FieldLabel htmlFor="authorized-individuals" className="text-base">
+                                                                                    Authorized Individual(s) Name(s)<span className="text-destructive">*</span>
+                                                                                </FieldLabel>
+                                                                                <Input
+                                                                                    {...innerField}
+                                                                                    id="authorized-individuals"
+                                                                                    aria-invalid={innerFieldState.invalid}
+                                                                                    placeholder="eg., Jane Smith, John Doe"
+                                                                                    autoComplete="off"
+                                                                                    className="h-12 md:text-lg"
+                                                                                />
+                                                                                {innerFieldState.invalid && (
+                                                                                    <FieldError errors={[innerFieldState.error]} />
+                                                                                )}
+                                                                            </Field>
+                                                                        )}
+                                                                    />
+                                                                )}
+                                                            </div>
                                                         </div>
                                                         <div className="flex items-center gap-3">
                                                             <RadioGroupItem value="withPrescription" id="r2" />
                                                             <Label htmlFor="r2" className="font-normal text-lg cursor-pointer">
-                                                                I required a written and signed prescription for each order under my medical direction.
+                                                                I require a signed prescription for each order.
                                                             </Label>
                                                         </div>
                                                     </RadioGroup>
-                                                </FieldSet>)}
+                                                </FieldSet>
+                                            )}
                                         />
                                     </div>
 
+                                    {/* ── Final Authorization ── */}
                                     <div>
                                         <Controller
                                             name="accountAuthorization"
@@ -192,13 +329,14 @@ function AccountSetupRouteComponent() {
                                                         htmlFor="account-authorization"
                                                         className={cn("font-normal text-lg cursor-pointer", fieldState.invalid && 'text-destructive')}
                                                     >
-                                                        I authorize Pace Pharmacy to process my account according to the terms above and confirm that I have read and understand all acknowledgements.
+                                                        I authorize Pace Pharmacy to process{' '}
+                                                        <b className="text-theme-green">{data.organizationName}</b>{' '}
+                                                        according to the terms above and confirm that I have read and understand all acknowledgements.
                                                     </FieldLabel>
                                                 </Field>
                                             )}
                                         />
                                     </div>
-
 
                                     <div className="flex justify-end items-center gap-2">
                                         <Button className='h-10 min-w-28 text-lg font-medium bg-theme-green cursor-pointer'>

@@ -9,56 +9,41 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SubmittedRouteImport } from './routes/submitted'
-import { Route as FormRouteRouteImport } from './routes/_form/route'
-import { Route as AccountRouteRouteImport } from './routes/_account/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as FormReviewRouteImport } from './routes/_form/review'
-import { Route as FormPaymentRouteImport } from './routes/_form/payment'
-import { Route as FormMedicalDirectorRouteImport } from './routes/_form/medical-director'
-import { Route as FormLocationRouteImport } from './routes/_form/location'
-import { Route as FormAcknowledgementsRouteImport } from './routes/_form/acknowledgements'
+import { Route as AccountRouteRouteImport } from './routes/_account/route'
+import { Route as FormRouteRouteImport } from './routes/_form/route'
+import { Route as SubmittedRouteImport } from './routes/submitted'
 import { Route as FormAccountRouteImport } from './routes/_form/account'
+import { Route as FormAcknowledgementsRouteImport } from './routes/_form/acknowledgements'
+import { Route as FormLocationRouteImport } from './routes/_form/location'
+import { Route as FormMedicalDirectorRouteImport } from './routes/_form/medical-director'
+import { Route as FormPaymentRouteImport } from './routes/_form/payment'
+import { Route as FormReviewRouteImport } from './routes/_form/review'
 import { Route as AccountAccountSetupIndexRouteImport } from './routes/_account/account-setup/index'
 import { Route as AccountAccountSetupCodeIndexRouteImport } from './routes/_account/account-setup/$code/index'
 import { Route as AccountAccountSetupCodeSubmittedRouteImport } from './routes/_account/account-setup/$code/submitted'
 
-const SubmittedRoute = SubmittedRouteImport.update({
-  id: '/submitted',
-  path: '/submitted',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FormRouteRoute = FormRouteRouteImport.update({
-  id: '/_form',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AccountRouteRoute = AccountRouteRouteImport.update({
   id: '/_account',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const FormRouteRoute = FormRouteRouteImport.update({
+  id: '/_form',
   getParentRoute: () => rootRouteImport,
 } as any)
-const FormReviewRoute = FormReviewRouteImport.update({
-  id: '/review',
-  path: '/review',
-  getParentRoute: () => FormRouteRoute,
+const SubmittedRoute = SubmittedRouteImport.update({
+  id: '/submitted',
+  path: '/submitted',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const FormPaymentRoute = FormPaymentRouteImport.update({
-  id: '/payment',
-  path: '/payment',
-  getParentRoute: () => FormRouteRoute,
-} as any)
-const FormMedicalDirectorRoute = FormMedicalDirectorRouteImport.update({
-  id: '/medical-director',
-  path: '/medical-director',
-  getParentRoute: () => FormRouteRoute,
-} as any)
-const FormLocationRoute = FormLocationRouteImport.update({
-  id: '/location',
-  path: '/location',
+const FormAccountRoute = FormAccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => FormRouteRoute,
 } as any)
 const FormAcknowledgementsRoute = FormAcknowledgementsRouteImport.update({
@@ -66,9 +51,24 @@ const FormAcknowledgementsRoute = FormAcknowledgementsRouteImport.update({
   path: '/acknowledgements',
   getParentRoute: () => FormRouteRoute,
 } as any)
-const FormAccountRoute = FormAccountRouteImport.update({
-  id: '/account',
-  path: '/account',
+const FormLocationRoute = FormLocationRouteImport.update({
+  id: '/location',
+  path: '/location',
+  getParentRoute: () => FormRouteRoute,
+} as any)
+const FormMedicalDirectorRoute = FormMedicalDirectorRouteImport.update({
+  id: '/medical-director',
+  path: '/medical-director',
+  getParentRoute: () => FormRouteRoute,
+} as any)
+const FormPaymentRoute = FormPaymentRouteImport.update({
+  id: '/payment',
+  path: '/payment',
+  getParentRoute: () => FormRouteRoute,
+} as any)
+const FormReviewRoute = FormReviewRouteImport.update({
+  id: '/review',
+  path: '/review',
   getParentRoute: () => FormRouteRoute,
 } as any)
 const AccountAccountSetupIndexRoute =
@@ -99,9 +99,9 @@ export interface FileRoutesByFullPath {
   '/medical-director': typeof FormMedicalDirectorRoute
   '/payment': typeof FormPaymentRoute
   '/review': typeof FormReviewRoute
-  '/account-setup': typeof AccountAccountSetupIndexRoute
+  '/account-setup/': typeof AccountAccountSetupIndexRoute
   '/account-setup/$code/submitted': typeof AccountAccountSetupCodeSubmittedRoute
-  '/account-setup/$code': typeof AccountAccountSetupCodeIndexRoute
+  '/account-setup/$code/': typeof AccountAccountSetupCodeIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -143,9 +143,9 @@ export interface FileRouteTypes {
     | '/medical-director'
     | '/payment'
     | '/review'
-    | '/account-setup'
+    | '/account-setup/'
     | '/account-setup/$code/submitted'
-    | '/account-setup/$code'
+    | '/account-setup/$code/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -185,27 +185,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/submitted': {
-      id: '/submitted'
-      path: '/submitted'
-      fullPath: '/submitted'
-      preLoaderRoute: typeof SubmittedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_form': {
-      id: '/_form'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof FormRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_account': {
-      id: '/_account'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof AccountRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -213,32 +192,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_form/review': {
-      id: '/_form/review'
-      path: '/review'
-      fullPath: '/review'
-      preLoaderRoute: typeof FormReviewRouteImport
-      parentRoute: typeof FormRouteRoute
+    '/_account': {
+      id: '/_account'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AccountRouteRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_form/payment': {
-      id: '/_form/payment'
-      path: '/payment'
-      fullPath: '/payment'
-      preLoaderRoute: typeof FormPaymentRouteImport
-      parentRoute: typeof FormRouteRoute
+    '/_form': {
+      id: '/_form'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof FormRouteRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_form/medical-director': {
-      id: '/_form/medical-director'
-      path: '/medical-director'
-      fullPath: '/medical-director'
-      preLoaderRoute: typeof FormMedicalDirectorRouteImport
-      parentRoute: typeof FormRouteRoute
+    '/submitted': {
+      id: '/submitted'
+      path: '/submitted'
+      fullPath: '/submitted'
+      preLoaderRoute: typeof SubmittedRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_form/location': {
-      id: '/_form/location'
-      path: '/location'
-      fullPath: '/location'
-      preLoaderRoute: typeof FormLocationRouteImport
+    '/_form/account': {
+      id: '/_form/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof FormAccountRouteImport
       parentRoute: typeof FormRouteRoute
     }
     '/_form/acknowledgements': {
@@ -248,24 +227,45 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FormAcknowledgementsRouteImport
       parentRoute: typeof FormRouteRoute
     }
-    '/_form/account': {
-      id: '/_form/account'
-      path: '/account'
-      fullPath: '/account'
-      preLoaderRoute: typeof FormAccountRouteImport
+    '/_form/location': {
+      id: '/_form/location'
+      path: '/location'
+      fullPath: '/location'
+      preLoaderRoute: typeof FormLocationRouteImport
+      parentRoute: typeof FormRouteRoute
+    }
+    '/_form/medical-director': {
+      id: '/_form/medical-director'
+      path: '/medical-director'
+      fullPath: '/medical-director'
+      preLoaderRoute: typeof FormMedicalDirectorRouteImport
+      parentRoute: typeof FormRouteRoute
+    }
+    '/_form/payment': {
+      id: '/_form/payment'
+      path: '/payment'
+      fullPath: '/payment'
+      preLoaderRoute: typeof FormPaymentRouteImport
+      parentRoute: typeof FormRouteRoute
+    }
+    '/_form/review': {
+      id: '/_form/review'
+      path: '/review'
+      fullPath: '/review'
+      preLoaderRoute: typeof FormReviewRouteImport
       parentRoute: typeof FormRouteRoute
     }
     '/_account/account-setup/': {
       id: '/_account/account-setup/'
       path: '/account-setup'
-      fullPath: '/account-setup'
+      fullPath: '/account-setup/'
       preLoaderRoute: typeof AccountAccountSetupIndexRouteImport
       parentRoute: typeof AccountRouteRoute
     }
     '/_account/account-setup/$code/': {
       id: '/_account/account-setup/$code/'
       path: '/account-setup/$code'
-      fullPath: '/account-setup/$code'
+      fullPath: '/account-setup/$code/'
       preLoaderRoute: typeof AccountAccountSetupCodeIndexRouteImport
       parentRoute: typeof AccountRouteRoute
     }

@@ -10,6 +10,8 @@ const accountSchema = z.object({
     organizationName: z.string().min(1, 'Organization name is required'),
     clinicType: z.string().min(1, 'Clinic type is required').default('general-medical'),
     contactPerson: z.string().optional().default(''),
+    contactPersonPhone: z.string().optional().default(''),
+    contactPersonEmail: z.union([z.literal(''), z.email('Must be a valid email address')]).optional().default(''),
 });
 
 const addressSchema = z.object({
@@ -86,6 +88,8 @@ export const defaultFormValues: Partial<FormSchema> = {
         designation: '',
         organizationName: '',
         contactPerson: '',
+        contactPersonPhone: '',
+        contactPersonEmail: '',
         clinicType: '',
     },
     billingAddress: {
