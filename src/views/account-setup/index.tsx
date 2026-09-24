@@ -270,35 +270,42 @@ function AccountSetupRouteComponent() {
                                                         <div className="flex items-start gap-3">
                                                             <RadioGroupItem value="withoutPrescription" id="r1" className="mt-1" />
                                                             <div className="flex-1">
-                                                                <Label htmlFor="r1" className="font-normal text-lg cursor-pointer">
-                                                                    I authorize the following individuals to place orders under my name for{' '}
-                                                                    <b className="text-theme-green">{data.organizationName}</b>,{' '}
-                                                                    without a signed prescription for each order.
-                                                                </Label>
-                                                                {prescriptionRequirement === 'withoutPrescription' && (
-                                                                    <Controller
-                                                                        name="authorizedIndividuals"
-                                                                        control={methods.control}
-                                                                        render={({ field: innerField, fieldState: innerFieldState }) => (
-                                                                            <Field data-invalid={innerFieldState.invalid} className="gap-0 mt-2">
-                                                                                <FieldLabel htmlFor="authorized-individuals" className="text-base">
-                                                                                    Authorized Individual(s) Name(s)<span className="text-destructive">*</span>
-                                                                                </FieldLabel>
-                                                                                <Input
+                                                                <Controller
+                                                                    name="authorizedIndividuals"
+                                                                    control={methods.control}
+                                                                    render={({ field: innerField, fieldState: innerFieldState }) => (
+                                                                        <>
+                                                                            <span className="font-normal text-lg leading-relaxed">
+                                                                                <Label htmlFor="r1" className="font-normal text-lg cursor-pointer">
+                                                                                    I authorize the following individuals{' '}
+                                                                                </Label>
+                                                                                <input
                                                                                     {...innerField}
                                                                                     id="authorized-individuals"
                                                                                     aria-invalid={innerFieldState.invalid}
-                                                                                    placeholder="eg., Jane Smith, John Doe"
+                                                                                    placeholder="name(s)"
                                                                                     autoComplete="off"
-                                                                                    className="h-12 md:text-lg"
+                                                                                    onClick={(e) => e.stopPropagation()}
+                                                                                    onFocus={() => methods.setValue('prescriptionRequirement', 'withoutPrescription')}
+                                                                                    className={cn(
+                                                                                        "inline border-0 border-b-2 outline-none bg-transparent text-lg min-w-[180px] px-1 mx-0.5 align-baseline",
+                                                                                        innerFieldState.invalid ? "border-destructive placeholder:text-destructive/60" : "border-foreground/60 focus:border-theme-green"
+                                                                                    )}
                                                                                 />
-                                                                                {innerFieldState.invalid && (
-                                                                                    <FieldError errors={[innerFieldState.error]} />
-                                                                                )}
-                                                                            </Field>
-                                                                        )}
-                                                                    />
-                                                                )}
+                                                                                <Label htmlFor="r1" className="font-normal text-lg cursor-pointer">
+                                                                                    {' '}to place orders under my name for{' '}
+                                                                                    <b className="text-theme-green">{data.organizationName}</b>,{' '}
+                                                                                    without a signed prescription for each order.
+                                                                                </Label>
+                                                                            </span>
+                                                                            {innerFieldState.invalid && prescriptionRequirement === 'withoutPrescription' && (
+                                                                                <span className="text-destructive text-sm block mt-1">
+                                                                                    {innerFieldState.error?.message}
+                                                                                </span>
+                                                                            )}
+                                                                        </>
+                                                                    )}
+                                                                />
                                                             </div>
                                                         </div>
                                                         <div className="flex items-center gap-3">
